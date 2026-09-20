@@ -28,15 +28,15 @@
     },
     "packages/client": {
       "name": "@mapper-fe/client",
-      "version": "0.0.0",
+      "version": "0.1.0",
     },
     "packages/core": {
       "name": "@mapper-fe/core",
-      "version": "0.0.0",
+      "version": "0.1.0",
     },
     "packages/react": {
       "name": "@mapper-fe/react",
-      "version": "0.0.0",
+      "version": "0.1.0",
       "dependencies": {
         "@mapper-fe/client": "workspace:*",
         "@mapper-fe/core": "workspace:*",
@@ -50,7 +50,7 @@
     },
     "packages/upload": {
       "name": "@mapper-fe/upload",
-      "version": "0.0.0",
+      "version": "0.1.0",
       "dependencies": {
         "@mapper-fe/client": "workspace:*",
       },
