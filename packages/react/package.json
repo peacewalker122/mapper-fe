@@ -1,14 +1,16 @@
 {
   "name": "@mapper/react",
   "version": "0.0.0",
-  "private": true,
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "main": "./src/index.tsx",
   "module": "./src/index.tsx",
   "exports": {
     ".": {
       "types": "./src/index.tsx",
-      "import": "./src/index.tsx",
+      "import": "./src/index.tsx"
     },
     "./styles.css": "./src/styles.css"
   },

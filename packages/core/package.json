@@ -1,7 +1,9 @@
 {
   "name": "@mapper/core",
   "version": "0.0.0",
-  "private": true,
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "exports": {
     ".": {

@@ -24,6 +24,18 @@ target ID); the backend in
 [mapper-be](https://github.com/peacewalker122/mapper-be) stays authoritative
 for validation and execution.
 
+## Releases
+
+Create a changeset for each release-worthy change:
+
+```bash
+bun run changeset
+```
+
+Commit the changeset and merge it to `main`. The release workflow then opens or updates a Changesets release PR; merging that PR versions and publishes packages. `@mapper/client`, `@mapper/core`, `@mapper/react`, and `@mapper/upload` use fixed versioning, so they release together. The initial changeset makes their first public release `0.1.0`.
+
+Publishing requires an `NPM_TOKEN` repository secret.
+
 ## License
 
 Apache-2.0. See [LICENSE](LICENSE).
