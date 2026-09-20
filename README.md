@@ -32,9 +32,20 @@ Create a changeset for each release-worthy change:
 bun run changeset
 ```
 
-Commit the changeset and merge it to `main`. The release workflow then opens or updates a Changesets release PR; merging that PR versions and publishes packages. `@mapper/client`, `@mapper/core`, `@mapper/react`, and `@mapper/upload` use fixed versioning, so they release together. The initial changeset makes their first public release `0.1.0`.
+Commit the changeset and merge it to `main`. Then open Actions → Release →
+Run workflow to publish. This workflow runs only when manually dispatched; it
+versions packages with `bun run version`, refreshes the lockfile, runs
+typecheck and tests, publishes packages, commits generated package versions,
+changelogs, consumed changesets, and lockfile updates to `main`, then pushes
+release tags. Ordinary pushes to `main` do not publish.
 
-Publishing requires an `NPM_TOKEN` repository secret.
+`@mapper/client`, `@mapper/core`, `@mapper/react`, and `@mapper/upload` use
+fixed versioning, so they release together. The initial changeset makes their
+first public release `0.1.0`.
+
+Publishing requires an `NPM_TOKEN` repository secret. The workflow uses its
+`GITHUB_TOKEN` with `contents: write` to push the generated commit and tags;
+it does not require pull-request creation or approval settings.
 
 ## License
 

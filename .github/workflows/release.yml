@@ -1,31 +1,43 @@
 name: Release
 
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: write
-  pull-requests: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 jobs:
   release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
       - uses: oven-sh/setup-bun@v2
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org
       - run: bun install --frozen-lockfile
+      - run: bun run version
+      - run: bun install --lockfile-only
       - run: bun run typecheck
       - run: bun run test
-      - uses: changesets/action@v1
-        with:
-          version: bun run version
-          publish: bun run release
+      - run: bun run release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Commit and push release
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: release packages"
+          fi
+          git push origin HEAD:main --tags
