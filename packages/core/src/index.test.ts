@@ -26,7 +26,7 @@ const spec: MappingSpec = {
   mappings: []
 };
 
-describe("@mapper/core", () => {
+describe("@mapper-fe/core", () => {
   it("connects by stable target ID without mutating input", () => {
     const connected = connect(spec, 1, 20);
     const replaced = connect(connect(connected, 0, 10), 2, 10);

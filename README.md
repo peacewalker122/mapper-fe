@@ -15,9 +15,9 @@ bun run test      # vitest
 bun run typecheck # tsc --noEmit
 ```
 
-Packages: `@mapper/client` (HTTP + protocol types) → `@mapper/core`
-(mapping ops, validation, workflow state) → `@mapper/react` (editor,
-importer, React Flow adapter) + `@mapper/upload` (multipart adapter).
+Packages: `@mapper-fe/client` (HTTP + protocol types) → `@mapper-fe/core`
+(mapping ops, validation, workflow state) → `@mapper-fe/react` (editor,
+importer, React Flow adapter) + `@mapper-fe/upload` (multipart adapter).
 
 The mapping UI edits a portable `MappingSpec` (`source` index → stable
 target ID); the backend in
@@ -39,7 +39,7 @@ typecheck and tests, publishes packages, commits generated package versions,
 changelogs, consumed changesets, and lockfile updates to `main`, then pushes
 release tags. Ordinary pushes to `main` do not publish.
 
-`@mapper/client`, `@mapper/core`, `@mapper/react`, and `@mapper/upload` use
+`@mapper-fe/client`, `@mapper-fe/core`, `@mapper-fe/react`, and `@mapper-fe/upload` use
 fixed versioning, so they release together. The initial changeset makes their
 first public release `0.1.0`.
 

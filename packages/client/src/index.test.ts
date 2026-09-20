@@ -8,7 +8,7 @@ const analysis: SourceAnalysis = {
   sheets: [{ name: "Sheet1", columns: ["name"], rows: 1 }]
 };
 
-describe("@mapper/client", () => {
+describe("@mapper-fe/client", () => {
   it("uses JSON protocol for schema, analyze by id, and import", async () => {
     const requests: Array<{ url: string; init?: RequestInit }> = [];
     const fetcher: MapperFetch = async (input, init) => {

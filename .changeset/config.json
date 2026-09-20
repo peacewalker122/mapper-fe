@@ -4,10 +4,10 @@
   "commit": false,
   "fixed": [
     [
-      "@mapper/client",
-      "@mapper/core",
-      "@mapper/react",
-      "@mapper/upload"
+      "@mapper-fe/client",
+      "@mapper-fe/core",
+      "@mapper-fe/react",
+      "@mapper-fe/upload"
     ]
   ],
   "linked": [],

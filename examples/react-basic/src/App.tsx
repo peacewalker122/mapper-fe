@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
-import type { ImportResult } from "@mapper/client";
-import { createMapperClient } from "@mapper/client";
-import { MapperImporter } from "@mapper/react";
+import type { ImportResult } from "@mapper-fe/client";
+import { createMapperClient } from "@mapper-fe/client";
+import { MapperImporter } from "@mapper-fe/react";
 
 export function App() {
   const client = useMemo(() => createMapperClient("/mapper"), []);

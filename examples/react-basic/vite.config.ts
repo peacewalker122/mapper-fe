@@ -6,11 +6,11 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      "@mapper/client": new URL("../../packages/client/src/index.ts", import.meta.url).pathname,
-      "@mapper/core": new URL("../../packages/core/src/index.ts", import.meta.url).pathname,
-      "@mapper/upload": new URL("../../packages/upload/src/index.ts", import.meta.url).pathname,
-      "@mapper/react": new URL("../../packages/react/src/index.tsx", import.meta.url).pathname,
-      "@mapper/react/styles.css": new URL("../../packages/react/src/styles.css", import.meta.url).pathname
+      "@mapper-fe/client": new URL("../../packages/client/src/index.ts", import.meta.url).pathname,
+      "@mapper-fe/core": new URL("../../packages/core/src/index.ts", import.meta.url).pathname,
+      "@mapper-fe/upload": new URL("../../packages/upload/src/index.ts", import.meta.url).pathname,
+      "@mapper-fe/react": new URL("../../packages/react/src/index.tsx", import.meta.url).pathname,
+      "@mapper-fe/react/styles.css": new URL("../../packages/react/src/styles.css", import.meta.url).pathname
     }
   },
   server: {

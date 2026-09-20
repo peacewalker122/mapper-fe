@@ -1,5 +1,5 @@
 {
-  "name": "@mapper/react",
+  "name": "@mapper-fe/react",
   "version": "0.0.0",
   "publishConfig": {
     "access": "public"
@@ -15,9 +15,9 @@
     "./styles.css": "./src/styles.css"
   },
   "dependencies": {
-    "@mapper/client": "workspace:*",
-    "@mapper/core": "workspace:*",
-    "@mapper/upload": "workspace:*",
+    "@mapper-fe/client": "workspace:*",
+    "@mapper-fe/core": "workspace:*",
+    "@mapper-fe/upload": "workspace:*",
     "react": "^19.1.1"
   },
   "devDependencies": {

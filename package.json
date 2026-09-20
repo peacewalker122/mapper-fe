@@ -1,5 +1,5 @@
 {
-  "name": "@mapper/frontend",
+  "name": "@mapper-fe/frontend",
   "private": true,
   "type": "module",
   "workspaces": [

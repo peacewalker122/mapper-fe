@@ -5,7 +5,7 @@ import type {
   MapperClient,
   Schema,
   SourceAnalysis
-} from "@mapper/client";
+} from "@mapper-fe/client";
 import {
   ImporterStatus,
   connect,
@@ -13,7 +13,7 @@ import {
   disconnectTarget,
   transitionMapperState,
   validateMappings
-} from "@mapper/core";
+} from "@mapper-fe/core";
 import type {
   MappingSchema,
   MappingSourceColumn,
@@ -21,11 +21,11 @@ import type {
   MappingTargetField,
   MapperErrorState,
   MapperState
-} from "@mapper/core";
+} from "@mapper-fe/core";
 import {
   MultipartUploadAdapter,
   type UploadAdapter
-} from "@mapper/upload";
+} from "@mapper-fe/upload";
 
 import "./styles.css";
 
@@ -380,6 +380,6 @@ function toErrorState(error: unknown): MapperErrorState {
   };
 }
 
-export type { MappingSpec, MappingTargetField } from "@mapper/core";
-export type { MapperClient, Schema, SourceAnalysis, ImportResult } from "@mapper/client";
-export type { UploadAdapter } from "@mapper/upload";
+export type { MappingSpec, MappingTargetField } from "@mapper-fe/core";
+export type { MapperClient, Schema, SourceAnalysis, ImportResult } from "@mapper-fe/client";
+export type { UploadAdapter } from "@mapper-fe/upload";

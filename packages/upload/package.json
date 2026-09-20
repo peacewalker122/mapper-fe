@@ -1,5 +1,5 @@
 {
-  "name": "@mapper/upload",
+  "name": "@mapper-fe/upload",
   "version": "0.0.0",
   "publishConfig": {
     "access": "public"
@@ -12,7 +12,7 @@
     }
   },
   "dependencies": {
-    "@mapper/client": "workspace:*"
+    "@mapper-fe/client": "workspace:*"
   },
   "scripts": {
     "test": "vitest run --config vitest.config.ts",

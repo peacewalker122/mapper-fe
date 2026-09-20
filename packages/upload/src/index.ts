@@ -1,4 +1,4 @@
-import type { MapperClient, SourceAnalysis } from "@mapper/client";
+import type { MapperClient, SourceAnalysis } from "@mapper-fe/client";
 
 export interface UploadAdapter {
   upload(file: Blob, filename?: string): Promise<SourceAnalysis>;

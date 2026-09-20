@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "@mapper/frontend",
+      "name": "@mapper-fe/frontend",
       "devDependencies": {
         "@changesets/cli": "3.0.3",
         "typescript": "^5.9.2",
@@ -11,11 +11,11 @@
       },
     },
     "examples/react-basic": {
-      "name": "@mapper/example-react-basic",
+      "name": "@mapper-fe/example-react-basic",
       "version": "0.0.0",
       "dependencies": {
-        "@mapper/client": "workspace:*",
-        "@mapper/react": "workspace:*",
+        "@mapper-fe/client": "workspace:*",
+        "@mapper-fe/react": "workspace:*",
         "react": "^19.1.1",
         "react-dom": "^19.1.1",
       },
@@ -27,20 +27,20 @@
       },
     },
     "packages/client": {
-      "name": "@mapper/client",
+      "name": "@mapper-fe/client",
       "version": "0.0.0",
     },
     "packages/core": {
-      "name": "@mapper/core",
+      "name": "@mapper-fe/core",
       "version": "0.0.0",
     },
     "packages/react": {
-      "name": "@mapper/react",
+      "name": "@mapper-fe/react",
       "version": "0.0.0",
       "dependencies": {
-        "@mapper/client": "workspace:*",
-        "@mapper/core": "workspace:*",
-        "@mapper/upload": "workspace:*",
+        "@mapper-fe/client": "workspace:*",
+        "@mapper-fe/core": "workspace:*",
+        "@mapper-fe/upload": "workspace:*",
         "react": "^19.1.1",
       },
       "devDependencies": {
@@ -49,10 +49,10 @@
       },
     },
     "packages/upload": {
-      "name": "@mapper/upload",
+      "name": "@mapper-fe/upload",
       "version": "0.0.0",
       "dependencies": {
-        "@mapper/client": "workspace:*",
+        "@mapper-fe/client": "workspace:*",
       },
     },
   },
@@ -197,15 +197,15 @@
 
     "@manypkg/tools": ["@manypkg/tools@2.1.2", "", { "dependencies": { "jju": "^1.4.0", "tinyglobby": "^0.2.13", "yaml": "^2.9.0" } }, "sha512-6QEf6yqFbETdwGITKq57aYoPfX/3K8XFNwsAlx0C1M7o8cb79sv1M3w+tWuWvIcSbNqrLF7OD7YpZMVVz335hQ=="],
 
-    "@mapper/client": ["@mapper/client@workspace:packages/client"],
+    "@mapper-fe/client": ["@mapper-fe/client@workspace:packages/client"],
 
-    "@mapper/core": ["@mapper/core@workspace:packages/core"],
+    "@mapper-fe/core": ["@mapper-fe/core@workspace:packages/core"],
 
-    "@mapper/example-react-basic": ["@mapper/example-react-basic@workspace:examples/react-basic"],
+    "@mapper-fe/example-react-basic": ["@mapper-fe/example-react-basic@workspace:examples/react-basic"],
 
-    "@mapper/react": ["@mapper/react@workspace:packages/react"],
+    "@mapper-fe/react": ["@mapper-fe/react@workspace:packages/react"],
 
-    "@mapper/upload": ["@mapper/upload@workspace:packages/upload"],
+    "@mapper-fe/upload": ["@mapper-fe/upload@workspace:packages/upload"],
 
     "@napi-rs/lzma-linux-x64-gnu": ["@napi-rs/lzma-linux-x64-gnu@1.5.1", "", { "os": "linux", "cpu": "x64" }, "sha512-oTXEIha4SsuXdTA4Iyskj0kpdx2yVXdhd75c2v3xGrHFfVMsbhTPZU/nMPL4sWKo4pBHm3aucLaqGlF696dTyQ=="],
 

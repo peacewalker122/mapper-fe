@@ -1,8 +1,8 @@
 ---
-"@mapper/client": minor
-"@mapper/core": minor
-"@mapper/react": minor
-"@mapper/upload": minor
+"@mapper-fe/client": minor
+"@mapper-fe/core": minor
+"@mapper-fe/react": minor
+"@mapper-fe/upload": minor
 ---
 
 Initial public release.
