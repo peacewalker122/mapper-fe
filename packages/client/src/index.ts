@@ -61,6 +61,50 @@ export interface FieldMapping {
   target: number;
 }
 
+export interface ColumnSample {
+  number: number;
+  values: Record<string, unknown>;
+}
+
+export interface SuggestMappingsOptions {
+  min_confidence?: number;
+  limit?: number;
+}
+export interface SuggestMappingsRequest {
+  schema_id: number;
+  columns: readonly string[];
+  samples?: readonly ColumnSample[];
+  options?: SuggestMappingsOptions;
+}
+
+export interface Suggestion {
+  source: number;
+  target: number;
+  confidence: number;
+  reason?: string;
+}
+
+export interface SuggestMappingsResponse {
+  suggestions: Suggestion[];
+  model: string;
+}
+
+export const SuggestionErrorCode = {
+  InvalidSchemaId: "invalid_schema_id",
+  SchemaNotFound: "schema_not_found",
+  InvalidColumns: "invalid_columns",
+  SuggesterUnavailable: "suggester_unavailable",
+  UpstreamError: "upstream_error",
+  InvalidRequest: "invalid_request",
+  MethodNotAllowed: "method_not_allowed",
+  UnsupportedMediaType: "unsupported_media_type",
+  NotFound: "not_found",
+  ServiceUnavailable: "service_unavailable"
+} as const;
+
+export type SuggestionErrorCode =
+  (typeof SuggestionErrorCode)[keyof typeof SuggestionErrorCode];
+
 export interface ImportRequest {
   file_id: string;
   schema_id: number;
@@ -128,6 +172,12 @@ export interface MapperClient {
   getSchema(schemaId: number | string): Promise<Schema>;
   analyzeFile(file: Blob, filename?: string): Promise<SourceAnalysis>;
   analyzeFileId(fileId: string): Promise<SourceAnalysis>;
+  suggest(
+    schemaId: number,
+    columns: readonly string[],
+    samples?: readonly ColumnSample[],
+    options?: SuggestMappingsOptions
+  ): Promise<SuggestMappingsResponse>;
   import(request: ImportRequest): Promise<ImportResult>;
 }
 
@@ -197,6 +247,12 @@ export function createMapperClient(
     },
     analyzeFileId(fileId) {
       return jsonRequest<SourceAnalysis>("/files/analyze", { file_id: fileId });
+    },
+    suggest(schemaId, columns, samples, options) {
+      const value: SuggestMappingsRequest = { schema_id: schemaId, columns };
+      if (samples !== undefined) value.samples = samples;
+      if (options !== undefined) value.options = options;
+      return jsonRequest<SuggestMappingsResponse>("/mappings/suggest", value);
     },
     import(value) {
       return jsonRequest<ImportResult>("/imports/sync", value);

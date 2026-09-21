@@ -159,6 +159,59 @@
   gap: var(--mapper-space-1);
 }
 
+.mapper-editor__suggestions {
+  border-top: 1px solid var(--mapper-color-border);
+  display: grid;
+  gap: var(--mapper-space-2);
+  margin-top: var(--mapper-space-3);
+  padding-top: var(--mapper-space-3);
+}
+
+.mapper-editor__suggestions-header,
+.mapper-editor__suggestion {
+  align-items: center;
+  display: flex;
+  gap: var(--mapper-space-2);
+  justify-content: space-between;
+}
+
+.mapper-editor__suggestions h3 {
+  margin: 0;
+}
+
+.mapper-editor__suggestion-list {
+  display: grid;
+  gap: var(--mapper-space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mapper-editor__suggestion {
+  background: var(--mapper-color-accent-soft);
+  border-radius: 0.45rem;
+  padding: var(--mapper-space-2) var(--mapper-space-3);
+}
+
+.mapper-editor__suggestion-copy {
+  display: grid;
+  gap: var(--mapper-space-1);
+}
+
+.mapper-editor__suggestion-copy small {
+  color: var(--mapper-color-muted);
+}
+
+.mapper-editor__suggestion-actions {
+  display: flex;
+  gap: var(--mapper-space-1);
+}
+
+.mapper-editor__suggestion-error {
+  color: var(--mapper-color-danger);
+  margin: 0;
+}
+
 .mapper-editor__graph {
   border-top: 1px solid var(--mapper-color-border);
   margin-top: var(--mapper-space-3);

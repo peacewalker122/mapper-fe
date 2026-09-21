@@ -6,6 +6,7 @@ import {
   connect,
   createMapperState,
   disconnect,
+  suggestLocalMappings,
   transitionMapperState,
   validateMappings
 } from "./index";
@@ -39,6 +40,29 @@ describe("@mapper-fe/core", () => {
     expect(disconnect(replaced, 1, 20).mappings).toEqual([
       { source: 2, target: 10 }
     ]);
+  });
+
+  it("matches local suggestions by normalized names when backend is unavailable", () => {
+    const suggestions = suggestLocalMappings(
+      ["First Name", "email"],
+      [
+        { id: 10, name: "first_name", required: true },
+        { id: 20, name: "email_address", required: false }
+      ]
+    );
+
+    expect(suggestions[0]).toEqual({
+      source: 0,
+      target: 10,
+      confidence: 1,
+      reason: 'local fuzzy match to "first_name" (distance 0)'
+    });
+    expect(suggestions[1]).toMatchObject({
+      source: 1,
+      target: 20,
+      reason: 'local fuzzy match to "email_address" (distance 8)'
+    });
+    expect(suggestions[1]?.confidence).toBeCloseTo(5 / 13);
   });
 
   it("reports backend-compatible mapping errors deterministically", () => {

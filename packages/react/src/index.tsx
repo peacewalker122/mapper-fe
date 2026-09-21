@@ -4,13 +4,15 @@ import type {
   ImportResult,
   MapperClient,
   Schema,
-  SourceAnalysis
+  SourceAnalysis,
+  Suggestion
 } from "@mapper-fe/client";
 import {
   ImporterStatus,
   connect,
   createMapperState,
   disconnectTarget,
+  suggestLocalMappings,
   transitionMapperState,
   validateMappings
 } from "@mapper-fe/core";
@@ -99,7 +101,19 @@ export interface MappingEditorProps {
   onChange: (value: MappingSpec) => void;
   disabled?: boolean;
   validation?: { errors: readonly { message: string }[] };
+  suggestions?: readonly Suggestion[];
+  suggestionLoading?: boolean;
+  suggestionError?: string;
+  onSuggestionAccept?: (suggestion: Suggestion) => void;
+  onSuggestionDismiss?: (suggestion: Suggestion) => void;
   className?: string;
+}
+
+export function acceptMappingSuggestion(
+  value: MappingSpec,
+  suggestion: Suggestion
+): MappingSpec {
+  return connect(value, suggestion.source, suggestion.target);
 }
 
 export function MappingEditor({
@@ -109,6 +123,11 @@ export function MappingEditor({
   onChange,
   disabled = false,
   validation,
+  suggestions = [],
+  suggestionLoading = false,
+  suggestionError,
+  onSuggestionAccept,
+  onSuggestionDismiss,
   className
 }: MappingEditorProps) {
   const sourceByIndex = new Map(
@@ -165,6 +184,63 @@ export function MappingEditor({
           );
         })}
       </div>
+      {suggestions.length > 0 || suggestionLoading || suggestionError ? (
+        <section className="mapper-editor__suggestions" aria-label="Mapping suggestions">
+          <div className="mapper-editor__suggestions-header">
+            <h3>Review suggestions</h3>
+            {suggestionLoading ? <span className="mapper-importer__muted" role="status">Finding matches…</span> : null}
+          </div>
+          {suggestionError ? (
+            <p className="mapper-editor__suggestion-error" role="alert">
+              Suggestions unavailable: {suggestionError}
+            </p>
+          ) : null}
+          {suggestions.length > 0 ? (
+            <ul className="mapper-editor__suggestion-list">
+              {suggestions.map((suggestion, index) => {
+                const sourceName = sourceByIndex.get(suggestion.source) ?? `Column ${suggestion.source}`;
+                const targetName = targetFields.find((field) => field.id === suggestion.target)?.name ??
+                  `Field ${suggestion.target}`;
+                const confidence = `${Math.round(Math.max(0, Math.min(1, suggestion.confidence)) * 100)}% confidence`;
+                return (
+                  <li className="mapper-editor__suggestion" key={`${suggestion.source}-${suggestion.target}-${index}`}>
+                    <div className="mapper-editor__suggestion-copy">
+                      <strong>{sourceName} <span aria-hidden="true">→</span> {targetName}</strong>
+                      <small>
+                        {confidence}
+                        {suggestion.reason ? ` · ${suggestion.reason}` : ""}
+                      </small>
+                    </div>
+                    <div className="mapper-editor__suggestion-actions">
+                      <button
+                        type="button"
+                        data-suggestion-action="accept"
+                        disabled={disabled}
+                        aria-label={`Accept suggestion ${sourceName} to ${targetName}`}
+                        onClick={() => {
+                          onChange(acceptMappingSuggestion(value, suggestion));
+                          onSuggestionAccept?.(suggestion);
+                        }}
+                      >
+                        Accept
+                      </button>
+                      <button
+                        type="button"
+                        data-suggestion-action="dismiss"
+                        disabled={disabled}
+                        aria-label={`Dismiss suggestion ${sourceName} to ${targetName}`}
+                        onClick={() => onSuggestionDismiss?.(suggestion)}
+                      >
+                        Dismiss
+                      </button>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : null}
+        </section>
+      ) : null}
       <div className="mapper-editor__graph" aria-label="Derived mapping graph">
         {graph.edges.length === 0 ? (
           <span className="mapper-importer__muted">No connections yet.</span>
@@ -217,6 +293,10 @@ export function MapperImporter({
     };
     return createMapperState(mapping) as ImporterState;
   });
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [suggestionLoading, setSuggestionLoading] = useState(false);
+  const [suggestionError, setSuggestionError] = useState<string>();
+
 
   useEffect(() => {
     let active = true;
@@ -247,8 +327,38 @@ export function MapperImporter({
   const busy = state.status === ImporterStatus.Uploading ||
     state.status === ImporterStatus.Analyzing ||
     state.status === ImporterStatus.Importing;
+  useEffect(() => {
+    if (!schema || !sheet || sourceColumns.length === 0) {
+      setSuggestions([]);
+      setSuggestionError(undefined);
+      setSuggestionLoading(false);
+      return;
+    }
+    let active = true;
+    setSuggestions([]);
+    setSuggestionError(undefined);
+    setSuggestionLoading(true);
+    client.suggest(schema.id, sourceColumns, sheet.samples).then((response) => {
+      if (active) setSuggestions(response.suggestions);
+    }).catch((error: unknown) => {
+      if (!active) return;
+      if (isSuggestionUnavailable(error)) {
+        setSuggestions(suggestLocalMappings(sourceColumns, schema.fields));
+      } else {
+        setSuggestionError(toErrorState(error).message);
+      }
+    }).finally(() => {
+      if (active) setSuggestionLoading(false);
+    });
+    return () => {
+      active = false;
+    };
+  }, [client, schema?.id, sheet]);
 
   async function handleFile(file: File) {
+    setSuggestions([]);
+    setSuggestionError(undefined);
+    setSuggestionLoading(false);
     setState((current) => transitionMapperState(current, { type: "upload_started" }));
     try {
       const analysis = await adapter.upload(file, file.name);
@@ -287,12 +397,19 @@ export function MapperImporter({
     }
   }
 
+  function removeSuggestion(suggestion: Suggestion) {
+    setSuggestions((current) => current.filter((item) =>
+      item.source !== suggestion.source || item.target !== suggestion.target
+    ));
+  }
   function changeSheet(event: ChangeEvent<HTMLSelectElement>) {
     const sheetIndex = Number(event.currentTarget.value);
     setState((current) => transitionMapperState(current, {
       type: "mapping_changed",
       mapping: { ...current.mapping, sheet: sheetIndex, mappings: [] }
     }));
+    setSuggestions([]);
+    setSuggestionError(undefined);
   }
 
   return (
@@ -350,6 +467,11 @@ export function MapperImporter({
           onChange={(mapping) => setState((current) => transitionMapperState(current, { type: "mapping_changed", mapping }))}
           disabled={busy}
           validation={validation}
+          suggestions={suggestions}
+          suggestionLoading={suggestionLoading}
+          suggestionError={suggestionError}
+          onSuggestionAccept={removeSuggestion}
+          onSuggestionDismiss={removeSuggestion}
         />
       ) : null}
       {state.result ? (
@@ -367,6 +489,15 @@ export function MapperImporter({
   );
 }
 
+function isSuggestionUnavailable(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
+  const value = error as { code?: unknown; status?: unknown };
+  return value.status === 502 ||
+    value.status === 503 ||
+    value.code === "suggester_unavailable" ||
+    value.code === "upstream_error" ||
+    value.code === "service_unavailable";
+}
 function toErrorState(error: unknown): MapperErrorState {
   if (error && typeof error === "object") {
     const value = error as { code?: unknown; message?: unknown };
@@ -381,5 +512,5 @@ function toErrorState(error: unknown): MapperErrorState {
 }
 
 export type { MappingSpec, MappingTargetField } from "@mapper-fe/core";
-export type { MapperClient, Schema, SourceAnalysis, ImportResult } from "@mapper-fe/client";
+export type { MapperClient, Schema, SourceAnalysis, ImportResult, Suggestion } from "@mapper-fe/client";
 export type { UploadAdapter } from "@mapper-fe/upload";

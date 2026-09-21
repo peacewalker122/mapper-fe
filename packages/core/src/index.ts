@@ -26,6 +26,13 @@ export interface MappingSourceColumn {
   name: string;
 }
 
+export interface MappingSuggestion {
+  source: number;
+  target: number;
+  confidence: number;
+  reason?: string;
+}
+
 export const MappingValidationCode = {
   InvalidMapping: "invalid_mapping",
   InvalidSourceIndex: "invalid_source_index",
@@ -81,6 +88,43 @@ export function disconnectTarget(spec: MappingSpec, target: number): MappingSpec
     ...spec,
     mappings: spec.mappings.filter((mapping) => mapping.target !== target)
   };
+}
+
+export function suggestLocalMappings(
+  sourceColumns: readonly (string | MappingSourceColumn)[],
+  targetFields: readonly MappingTargetField[]
+): MappingSuggestion[] {
+  const suggestions: MappingSuggestion[] = [];
+  for (const [sourcePosition, column] of sourceColumns.entries()) {
+    const source = typeof column === "string"
+      ? { index: sourcePosition, name: column }
+      : column;
+    const sourceName = normalizeMappingName(source.name);
+    if (!sourceName) continue;
+    let bestField: MappingTargetField | undefined;
+    let bestDistance = 0;
+    let bestConfidence = -1;
+    for (const field of targetFields) {
+      const targetName = normalizeMappingName(field.name);
+      if (!targetName || field.id === 0) continue;
+      const distance = mappingLevenshteinDistance(sourceName, targetName);
+      const confidence = mappingFuzzyConfidence(distance, sourceName, targetName);
+      if (bestField === undefined || confidence > bestConfidence) {
+        bestField = field;
+        bestDistance = distance;
+        bestConfidence = confidence;
+      }
+    }
+    if (bestField) {
+      suggestions.push({
+        source: source.index,
+        target: bestField.id,
+        confidence: bestConfidence,
+        reason: `local fuzzy match to "${bestField.name}" (distance ${bestDistance})`
+      });
+    }
+  }
+  return suggestions;
 }
 
 export function validateMappings(
@@ -322,4 +366,35 @@ function copyMapping(mapping: MappingSpec): MappingSpec {
 
 function emptyMapping(): MappingSpec {
   return { file_id: "", schema_id: 0, sheet: 0, mappings: [] };
+}
+
+function normalizeMappingName(value: string): string {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^\p{L}\p{N}]+/gu, "_")
+    .replace(/^_+|_+$/g, "");
+}
+
+function mappingLevenshteinDistance(left: string, right: string): number {
+  const leftRunes = Array.from(left);
+  const rightRunes = Array.from(right);
+  const previous = Array.from({ length: leftRunes.length + 1 }, (_, index) => index);
+  for (const [rightIndex, rightRune] of rightRunes.entries()) {
+    const current = [rightIndex + 1];
+    for (const [leftIndex, leftRune] of leftRunes.entries()) {
+      current.push(Math.min(
+        current[leftIndex] + 1,
+        previous[leftIndex + 1] + 1,
+        previous[leftIndex] + (leftRune === rightRune ? 0 : 1)
+      ));
+    }
+    previous.splice(0, previous.length, ...current);
+  }
+  return previous[leftRunes.length] ?? rightRunes.length;
+}
+
+function mappingFuzzyConfidence(distance: number, left: string, right: string): number {
+  const maxLength = Math.max(Array.from(left).length, Array.from(right).length);
+  return maxLength === 0 ? 0 : Math.max(0, 1 - distance / maxLength);
 }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { createMapperClient } from "./index";
+import { SuggestionErrorCode, createMapperClient } from "./index";
 import type { MapperFetch, SourceAnalysis } from "./index";
 
 const analysis: SourceAnalysis = {
@@ -43,6 +43,53 @@ describe("@mapper-fe/client", () => {
       schema_id: 7,
       sheet: 0,
       mappings: [{ source: 0, target: 42 }]
+    });
+  });
+
+  it("posts suggestion inputs and returns reviewed mappings", async () => {
+    let request: RequestInit | undefined;
+    const fetcher: MapperFetch = async (input, init) => {
+      expect(String(input)).toBe("https://mapper.test/mappings/suggest");
+      request = init;
+      return new Response(JSON.stringify({
+        suggestions: [{ source: 0, target: 42, confidence: 0.91, reason: "name match" }],
+        model: "fuzzy"
+      }), { status: 200 });
+    };
+    const client = createMapperClient("https://mapper.test", fetcher);
+
+    await expect(client.suggest(
+      7,
+      ["full name", "email"],
+      [{ number: 1, values: { "full name": "Ada" } }],
+      { min_confidence: 0.8, limit: 2 }
+    )).resolves.toEqual({
+      suggestions: [{ source: 0, target: 42, confidence: 0.91, reason: "name match" }],
+      model: "fuzzy"
+    });
+
+    expect(request?.method).toBe("POST");
+    expect((request?.headers as Record<string, string>)["Content-Type"]).toBe("application/json");
+    expect(JSON.parse(String(request?.body))).toEqual({
+      schema_id: 7,
+      columns: ["full name", "email"],
+      samples: [{ number: 1, values: { "full name": "Ada" } }],
+      options: { min_confidence: 0.8, limit: 2 }
+    });
+  });
+
+  it("keeps typed suggester errors actionable", async () => {
+    const fetcher: MapperFetch = async () =>
+      new Response(JSON.stringify({
+        error: { code: SuggestionErrorCode.SuggesterUnavailable, message: "try later" }
+      }), { status: 503 });
+    const client = createMapperClient("https://mapper.test", fetcher);
+
+    await expect(client.suggest(7, ["email"])).rejects.toMatchObject({
+      name: "MapperError",
+      code: SuggestionErrorCode.SuggesterUnavailable,
+      status: 503,
+      message: "try later"
     });
   });
 
