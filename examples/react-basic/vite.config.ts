@@ -4,20 +4,11 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   base: "/mapper-fe/",
   plugins: [react()],
-  resolve: {
-    alias: {
-      "@mapper-fe/client": new URL("../../packages/client/src/index.ts", import.meta.url).pathname,
-      "@mapper-fe/core": new URL("../../packages/core/src/index.ts", import.meta.url).pathname,
-      "@mapper-fe/upload": new URL("../../packages/upload/src/index.ts", import.meta.url).pathname,
-      "@mapper-fe/react": new URL("../../packages/react/src/index.tsx", import.meta.url).pathname,
-      "@mapper-fe/react/styles.css": new URL("../../packages/react/src/styles.css", import.meta.url).pathname
-    }
-  },
   server: {
     port: 5173,
     strictPort: true,
     proxy: {
-      "/mapper": "http://127.0.0.1:8787"
+      "/mapper/": "http://127.0.0.1:8787"
     }
   }
 });
