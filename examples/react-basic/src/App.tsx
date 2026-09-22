@@ -330,6 +330,13 @@ export function App() {
     setSimulation(undefined);
   }
 
+  function changeMapping(target: string, rawSource: string) {
+    setMappings((current) => rawSource === ""
+      ? disconnectMapping(current, target)
+      : connectMapping(current, Number(rawSource), target));
+    setSimulation(undefined);
+  }
+
   function handleSourceReset() {
     setSourceColumns([...SAMPLE_COLUMNS]);
     setSourceRows(SAMPLE_ROWS.map((row) => ({ ...row })));
@@ -453,7 +460,10 @@ export function App() {
           <div>
             <p className="section-kicker">02 · Connect</p>
             <h2 id="canvas-title">Build mapping</h2>
-            <p id="mapping-help">Drag from any source node on left to target field on right.</p>
+            <p id="mapping-help">
+              <span className="mapping-help__desktop">Drag from any source node on left to target field on right.</span>
+              <span className="mapping-help__mobile">Choose a source column for each target field.</span>
+            </p>
           </div>
           <div className="canvas-actions">
             <span className="connection-count">{mappedCount} connected</span>
@@ -470,6 +480,33 @@ export function App() {
             </button>
           </div>
         </div>
+        <div className="mapping-canvas__mobile" aria-label="Mobile mapping controls">
+          <p className="mapping-canvas__mobile-intro">Choose source column for each target field.</p>
+          <div className="mapping-canvas__mobile-list">
+            {SAMPLE_TARGET_FIELDS.map((field) => {
+              const mapping = mappings.find((item) => item.target === field.id);
+              return (
+                <label className="mapping-canvas__mobile-row" key={field.id}>
+                  <span className="mapping-canvas__mobile-target">
+                    <strong>{field.name}</strong>
+                    <small>{field.type}{field.required ? " · required" : " · optional"}</small>
+                  </span>
+                  <select
+                    aria-label={`Source for ${field.name}`}
+                    value={mapping ? String(mapping.source) : ""}
+                    onChange={(event) => changeMapping(field.id, event.currentTarget.value)}
+                  >
+                    <option value="">Unmapped</option>
+                    {sourceColumns.map((column, index) => (
+                      <option value={index} key={`${column}-${index}`}>{column}</option>
+                    ))}
+                  </select>
+                </label>
+              );
+            })}
+          </div>
+        </div>
+
         <div
           className="mapping-canvas__viewport"
           onContextMenu={(event) => event.preventDefault()}
@@ -582,7 +619,12 @@ export function App() {
         <p className="canvas-status" role="status" aria-live="polite">
           {dragging
             ? `Dragging ${sourceColumns[dragging.sourceIndex] ?? "source column"} — release over target field.`
-            : "Connected pairs glow. Animated dashes show source-to-target flow."}
+            : (
+              <>
+                <span className="canvas-status__desktop">Connected pairs glow. Animated dashes show source-to-target flow.</span>
+                <span className="canvas-status__mobile">Choose source columns above to update mapping.</span>
+              </>
+            )}
         </p>
       </section>
 

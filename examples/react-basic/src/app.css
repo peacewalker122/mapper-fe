@@ -204,6 +204,10 @@ button {
   margin: 0;
 }
 
+.mapping-help__mobile {
+  display: none;
+}
+
 .source-toolbar {
   flex-wrap: wrap;
   justify-content: flex-start;
@@ -341,6 +345,11 @@ button {
   overflow: hidden;
 }
 
+.mapping-canvas__mobile,
+.canvas-status__mobile {
+  display: none;
+}
+
 .canvas-actions {
   flex-shrink: 0;
 }
@@ -356,6 +365,51 @@ button {
   color: white;
   overflow-x: auto;
   overscroll-behavior-x: contain;
+}
+
+.mapping-canvas__mobile-intro {
+  color: #a7b4ce;
+  font-size: 0.78rem;
+  margin: 0 0 0.8rem;
+}
+
+.mapping-canvas__mobile-list {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.mapping-canvas__mobile-row {
+  background: #182541;
+  border: 1px solid #2b3b60;
+  border-radius: 0.7rem;
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.8rem;
+}
+
+.mapping-canvas__mobile-target {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.mapping-canvas__mobile-target strong {
+  color: white;
+  font-size: 0.82rem;
+}
+
+.mapping-canvas__mobile-target small {
+  color: #8495b8;
+  font-size: 0.68rem;
+}
+
+.mapping-canvas__mobile-row select {
+  background: #101a31;
+  border: 1px solid #3a4f79;
+  border-radius: 0.5rem;
+  color: white;
+  min-height: 2.75rem;
+  padding: 0.6rem 0.7rem;
+  width: 100%;
 }
 
 .mapping-canvas__body {
@@ -762,6 +816,30 @@ button {
     flex-direction: column;
     gap: 0.35rem;
     padding-left: 0;
+  }
+
+  .mapping-canvas__viewport {
+    display: none;
+  }
+
+  .mapping-canvas__mobile {
+    display: block;
+  }
+
+  .canvas-status__desktop {
+    display: none;
+  }
+
+  .canvas-status__mobile {
+    display: inline;
+  }
+
+  .mapping-help__desktop {
+    display: none;
+  }
+
+  .mapping-help__mobile {
+    display: inline;
   }
 }
 
