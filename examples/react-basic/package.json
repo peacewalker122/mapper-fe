@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@mapper-fe/client": "workspace:*",
+    "@mapper-fe/core": "workspace:*",
     "@mapper-fe/react": "workspace:*",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
