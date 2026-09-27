@@ -23,6 +23,7 @@ describe("SDK example", () => {
     const markup = renderToStaticMarkup(createElement(App));
 
     expect(markup).toContain('aria-label="Mapping editor"');
+    expect(markup).toContain('aria-label="Mapping graph. No accepted mappings yet."');
     expect(markup).toContain('data-suggestion-action="accept"');
     expect(markup).toContain("&quot;mappings&quot;: []");
   });

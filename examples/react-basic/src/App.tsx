@@ -9,7 +9,7 @@ import type {
   MappingSuggestion,
   MappingTargetField
 } from "@mapper-fe/core";
-import { MappingEditor } from "@mapper-fe/react";
+import { MappingEditor, ReactFlowAdapter } from "@mapper-fe/react";
 
 type SourceRow = Record<string, string>;
 
@@ -62,6 +62,97 @@ function emptyMapping(fileID: string): MappingSpec {
 
 function suggestionKey(suggestion: MappingSuggestion): string {
   return `${suggestion.source}:${suggestion.target}`;
+}
+
+const GRAPH_WIDTH = 600;
+const GRAPH_SOURCE_WIDTH = 240;
+const GRAPH_HEADER_HEIGHT = 40;
+const GRAPH_NODE_HEIGHT = 56;
+
+function MappingGraph({
+  mapping,
+  sourceColumns
+}: {
+  mapping: MappingSpec;
+  sourceColumns: readonly string[];
+}) {
+  const graph = ReactFlowAdapter(mapping, sourceColumns, TARGET_FIELDS);
+  const nodesByID = new Map(graph.nodes.map((node) => [node.id, node]));
+  const connectedNodes = new Set(graph.edges.flatMap(({ source, target }) => [source, target]));
+  const lastNodeY = graph.nodes.reduce((max, node) => Math.max(max, node.position.y), 0);
+  const height = GRAPH_HEADER_HEIGHT + lastNodeY + GRAPH_NODE_HEIGHT + 16;
+  const description = graph.edges.length === 0
+    ? "No accepted mappings yet."
+    : `Accepted mappings: ${graph.edges.map(({ source, target }) =>
+      `${nodesByID.get(source)?.data.label ?? source} to ${nodesByID.get(target)?.data.label ?? target}`
+    ).join("; ")}.`;
+
+  return (
+    <>
+      <div
+        className="mapping-graph"
+        role="img"
+        aria-label={`Mapping graph. ${description}`}
+        style={{ height }}
+      >
+        <span className="mapping-graph__column-label">Source columns</span>
+        <span className="mapping-graph__column-label mapping-graph__column-label--target">Target fields</span>
+        <svg
+          className="mapping-graph__wires"
+          viewBox={`0 0 ${GRAPH_WIDTH} ${height}`}
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
+          <defs>
+            <marker id="mapping-graph-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+              <path d="M 0 0 L 8 4 L 0 8 z" />
+            </marker>
+          </defs>
+          {graph.edges.map((edge) => {
+            const source = nodesByID.get(edge.source);
+            const target = nodesByID.get(edge.target);
+            if (!source || !target) return null;
+            const fromX = source.position.x + GRAPH_SOURCE_WIDTH;
+            const toX = target.position.x;
+            const fromY = GRAPH_HEADER_HEIGHT + source.position.y + GRAPH_NODE_HEIGHT / 2;
+            const toY = GRAPH_HEADER_HEIGHT + target.position.y + GRAPH_NODE_HEIGHT / 2;
+            const bend = (toX - fromX) / 2;
+            return (
+              <path
+                key={edge.id}
+                className="mapping-graph__edge"
+                d={`M ${fromX} ${fromY} C ${fromX + bend} ${fromY}, ${toX - bend} ${toY}, ${toX} ${toY}`}
+                markerEnd="url(#mapping-graph-arrow)"
+              />
+            );
+          })}
+        </svg>
+        {graph.nodes.map((node) => (
+          <div
+            className={`mapping-graph__node mapping-graph__node--${node.type}${connectedNodes.has(node.id) ? " is-connected" : ""}`}
+            key={node.id}
+            style={{
+              left: `${(node.position.x / GRAPH_WIDTH) * 100}%`,
+              top: GRAPH_HEADER_HEIGHT + node.position.y
+            }}
+            title={node.data.label}
+          >
+            <span className="mapping-graph__node-label">{node.data.label}</span>
+            <small>
+              {node.type === "source"
+                ? `Column ${node.data.index + 1}`
+                : node.data.required ? "Required" : "Optional"}
+            </small>
+          </div>
+        ))}
+      </div>
+      <p className="mapping-graph__caption">
+        {graph.edges.length === 0
+          ? "No accepted mappings yet. Choose a source or accept a suggestion to add an edge."
+          : "Edges show accepted mappings only."}
+      </p>
+    </>
+  );
 }
 
 export function parseCsv(input: string): ParsedCsv {
@@ -252,6 +343,8 @@ export function App() {
           </div>
           <span className="panel-count">{mapping.mappings.length} mapped</span>
         </div>
+        <MappingGraph mapping={mapping} sourceColumns={sourceColumns} />
+
         <MappingEditor
           className="demo-sdk-editor"
           sourceColumns={sourceColumns}

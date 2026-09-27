@@ -284,6 +284,96 @@ select:focus-visible,
   filter: brightness(0.94);
 }
 
+.demo-sdk-editor .mapper-editor__graph {
+  display: none;
+}
+
+.mapping-graph {
+  max-width: 54rem;
+  position: relative;
+  width: 100%;
+}
+
+.mapping-graph__wires {
+  height: 100%;
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+  width: 100%;
+}
+
+.mapping-graph__wires marker path {
+  fill: var(--blue);
+}
+
+.mapping-graph__edge {
+  fill: none;
+  stroke: var(--blue);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.mapping-graph__column-label {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 750;
+  left: 0;
+  position: absolute;
+  top: 0.35rem;
+  width: 40%;
+}
+
+.mapping-graph__column-label--target {
+  left: 60%;
+}
+
+.mapping-graph__node {
+  align-items: flex-start;
+  background: var(--surface);
+  border: 1px solid #7b8ba5;
+  border-radius: 0.45rem;
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  height: 3.5rem;
+  justify-content: center;
+  overflow: hidden;
+  padding: 0.25rem 0.55rem;
+  position: absolute;
+  width: 40%;
+  z-index: 1;
+}
+
+.mapping-graph__node.is-connected {
+  background: var(--blue-soft);
+  border-color: var(--blue);
+}
+
+.mapping-graph__node-label {
+  display: -webkit-box;
+  font-size: 0.9rem;
+  font-weight: 650;
+  min-width: 0;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow-wrap: anywhere;
+}
+
+.mapping-graph__node small {
+  color: var(--muted);
+  flex-shrink: 0;
+  font-size: 0.68rem;
+}
+
+.mapping-graph__caption {
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.4;
+  margin: 0;
+}
+
 .mapping-actions {
   justify-content: flex-start;
   flex-wrap: wrap;
